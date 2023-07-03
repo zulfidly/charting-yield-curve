@@ -1,4 +1,4 @@
-# [VSCode](https://code.visualstudio.com/)
+# [view at Netlify](https://ust-yield-chart-fidly.netlify.app/)
 
 ## install Vue
 ```npm init vue@latest```

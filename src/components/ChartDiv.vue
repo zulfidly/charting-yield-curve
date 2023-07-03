@@ -53,6 +53,8 @@
 
   
   function userWantsToViewChart(arrYr) {
+    if(arrYr.length > 3) emiT('notifyMsg', 'Processing large amount of data at once may cause your device to be unresponsive')
+
     isDataContinuityOK.value = false
     const endurl = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value='
     let promises = []
@@ -91,7 +93,7 @@
     setChartDimension()
     var data = google.visualization.arrayToDataTable(chartData.value);
     var options = {
-      title: "Treasury Yield Curve Differences",
+      title: "U.S Treasury Yield Curve Difference",
       titlePosition: "out",
       titleTextStyle: {
           fontSize: 16,
