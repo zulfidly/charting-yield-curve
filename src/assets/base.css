@@ -44,6 +44,11 @@
   --chartarea-bg-color-dark: #282828;
   --chartarea-bg-color-light: #f2f2f2;
 
+  --view-btn-bg-light: #80F9D2;
+  --view-btn-bg-dark: #1A7558;
+  --table-cap-light: #F2E8A2;
+  --table-cap-dark: #7F700E;
+
 }
 
 /* semantic color variables for this project */
@@ -62,6 +67,8 @@
   --chart-bg: var(--chart-bg-color-light);
   --chartarea-bg: var(--chartarea-bg-color-light);
   --chart-text: var(--chart-text-color-light);
+  --view-btn: var(--view-btn-bg-light);
+  --table-cap: var(--table-cap-light);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -78,6 +85,8 @@
     --chart-bg: var(--chart-bg-color-dark);
     --chartarea-bg: var(--chartarea-bg-color-dark);
     --chart-text: var(--chart-text-color-dark);
+    --view-btn: var(--view-btn-bg-dark);
+    --table-cap: var(--table-cap-dark);
   }
 }
 
@@ -90,7 +99,8 @@
 }
 
 body {
-  min-height: 100vh;
+  height: 100svh;
+  width: 100vw;
   color: var(--color-text);
   background: var(--color-background);
   transition: color 0.5s, background-color 0.5s;
@@ -110,9 +120,3 @@ body {
   font-weight: normal;
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-}

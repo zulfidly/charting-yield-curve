@@ -1,13 +1,22 @@
 <script setup>
     import { inject } from 'vue'
+    import { fetchData } from '../main.js'
+    import { onMounted } from 'vue';
     const rawData = inject('rawData')
+
+    onMounted(()=> {
+        let yr = new Date().getFullYear().toString()
+        let url = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value='
+        // fetchData('scrapeData', url+yr)
+        // .then((resp)=> rawData.value = resp)
+    })
 </script>
 
 <template>
-    <div class="h-auto overflow-scroll">
-        <table class="table-auto w-full text-center border">
-            <caption class="caption-top bg-red-200">Table: Year To Date (YTD) Summary Data</caption>
-            <thead>
+    <div class="mt-2 min-w-[inherit] h-[75svh] overflow-scroll rounded-md">
+        <table class="table-auto w-full text-center border border-[--color-border]">
+            <caption class="caption-top bg-[--table-cap]">Summary Data (%)</caption>
+            <thead class="sticky top-0">
                 <tr class="[&>*]:p-1 bg-[var(--color-background-mute)]">
                     <th>Date</th>
                     <th>10 yr</th>
@@ -30,5 +39,4 @@
             </tbody>
         </table>
     </div>
-
 </template>

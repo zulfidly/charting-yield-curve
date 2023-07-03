@@ -1,8 +1,7 @@
 <template>
   <div>
     <ChartForm @userOptYear="(x)=> userWantsToViewChart(x)" />
-    <header>U.S Treasury Yield Curve Comparison</header>
-    <div v-show="isChartShowing" @click="isChartShowing=!isChartShowing" class="fixed top-0 left-0 w-screen h-screen" id="curve_chart" ref="gcchart" ></div>
+    <div v-show="isChartShowing" @click="isChartShowing=!isChartShowing" class="fixed z-10 top-0 left-0 w-screen h-screen" id="curve_chart" ref="gcchart" ></div>
   </div>
 </template>
 
@@ -12,10 +11,12 @@
   import { ref } from 'vue'
   import { onMounted } from 'vue'
   import { inject } from 'vue'
+  const emiT = defineEmits(['notifyMsg'])
   const isChartShowing = ref(false)
   const isDataContinuityOK = ref(undefined)
   const chartData = inject('chartData')
   const rawData = inject('rawData')
+  const isFetching = inject('isFetching')
   const gcchart = ref(null)
   var r = document.querySelector(':root')
   var rs = getComputedStyle(r)
@@ -42,7 +43,6 @@
   }
 
   onMounted(()=> { addListener_resize() })
-
   function addListener_resize() {
     window.addEventListener('resize', ()=> {
       if(isChartShowing.value == false) return
@@ -50,6 +50,37 @@
       displayChart()
     })
   }
+
+  
+  function userWantsToViewChart(arrYr) {
+    isDataContinuityOK.value = false
+    const endurl = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value='
+    let promises = []
+
+    arrYr.forEach(function(yr, ind) {
+      let endpoint = endurl + yr.toString()
+      let promis = new Promise((resolve, reject)=> {
+        resolve(fetchData('scrapeData', endpoint))
+      })
+      promises.push(promis)
+    })
+    Promise.all(promises)
+      .then((resp)=> {
+        isDataContinuityOK.value = true
+        isFetching.value = false
+        let arr = resp.flat()
+        // console.log('all promises settled:', temp);
+        rawData.value = arr
+        buildChartingData(arr)
+        displayChart()
+      })
+      .catch((err)=> {
+        isDataContinuityOK.value = false
+        emiT('notifyMsg', 'Inconsistent data continuity detected, please try again')
+        console.error('data discontinuity:', err)
+    })
+  }
+
   function displayChart() {
     isChartShowing.value = true
     google.charts.load('current', { 'packages': ['corechart'] });            
@@ -58,7 +89,7 @@
   function drawChart() {
     console.log('drawing chart');
     setChartDimension()
-    var data = google.visualization.arrayToDataTable(chartData);
+    var data = google.visualization.arrayToDataTable(chartData.value);
     var options = {
       title: "Treasury Yield Curve Differences",
       titlePosition: "out",
@@ -109,14 +140,16 @@
     var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
     chart.draw(data, options);
   }
-  function buildChartingData() {
-    rawData.value.forEach((obj, ind)=> {
+  function buildChartingData(arr) {
+    console.log('arr:', arr);
+    chartData.value = [['Month', '10yr−2yr', '10yr−3mth']]
+    arr.forEach((obj, ind)=> {
       let TenyrTwoyr = (obj['10yr']-obj['2yr']).toFixed(3) * 1
       let TenyrThreemth = (obj['10yr']-obj['3mth']).toFixed(3) * 1
-      let ddmmyyyy = Intl.DateTimeFormat('en-GB').format(new Date(obj.date))      
-      chartData.push([ddmmyyyy, TenyrTwoyr, TenyrThreemth])
+      let ddmmyyyy = Intl.DateTimeFormat('en-GB').format(new Date(obj.date)) 
+      if(!isNaN(TenyrTwoyr) && !isNaN(TenyrThreemth)) chartData.value.push([ddmmyyyy, TenyrTwoyr, TenyrThreemth])
     })
-    console.log('chartingData:', chartData);
+    console.log('chartingData:', chartData.value);
   }
   function setChartDimension() { 
     dimension.innerChart.W = window.innerWidth * 0.75
@@ -125,34 +158,6 @@
     dimension.innerChart.L = "auto"
     dimension.outerChart.W = window.innerWidth
     dimension.outerChart.H = window.innerHeight
-  }
-
-  function userWantsToViewChart(arrYr) {
-    isDataContinuityOK.value = false
-    const endurl = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value='
-    let result = []
-    let promises = []
-
-    arrYr.forEach(function(yr, ind) {
-      let endpoint = endurl + yr.toString()
-      let promis = new Promise((resolve, reject)=> {
-        resolve(fetchData('scrapeData', endpoint))
-      })
-      promises.push(promis)
-    })
-    Promise.all(promises)
-      .then((resp)=> {
-        isDataContinuityOK.value = true
-        let temp = resp.flat()
-        // console.log('all promises settled:', temp);
-        rawData.value = temp
-        buildChartingData()
-        displayChart()
-      })
-      .catch((err)=> {
-        isDataContinuityOK.value = false
-        console.error('data discontinuity:', err)
-    })
   }
 
 </script>

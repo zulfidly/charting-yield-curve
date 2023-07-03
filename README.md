@@ -9,7 +9,8 @@
 - see edits in tailwind.config.js
 - see Tailwind top-level codes in css file
 
-<!-- FormKit dropdown & list are paid features -->
+``` npm uninstall @formkit/vue @formkit/themes @formkit/icons```
+- FormKit dropdown & list are paid features
 
 ### Compile and Hot-Reload for Development
 ```npm run dev```
