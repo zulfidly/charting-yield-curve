@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-  import ChartForm from './ChartFormOption.vue'
+  import ChartForm from './ChartOptionsForm.vue'
   import { fetchData } from '../main.js'
   import { ref } from 'vue'
   import { onMounted } from 'vue'
@@ -78,7 +78,7 @@
       })
       .catch((err)=> {
         isDataContinuityOK.value = false
-        emiT('notifyMsg', 'Inconsistent data continuity detected, please try again')
+        emiT('notifyMsg', 'Inconsistent data continuity detected, \n or shorten the range (year). \n Try again. ')
         console.error('data discontinuity:', err)
     })
   }
