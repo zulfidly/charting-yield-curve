@@ -16,14 +16,15 @@
 
 <template>
   <Notifier :msg="isNotify.msg" />
+  
   <header class="font-semibold flex mb-2 gap-4 item-center">
     <IconGitHub />
     <a class="font-semibold" href='https://home.treasury.gov/' target="_blank" aria-label="visit U.S Treasury website">
       U.S Treasury Yield Curve Comparison <br />
       <span>(a coding practice)</span>
-    </a>
-    
+    </a>    
   </header>
+
   <ChartDiv @notifyMsg="(x)=> notifierMngr(x)"></ChartDiv>
   <TableSummary />
 </template>
