@@ -5,7 +5,6 @@
     <button v-if="isChartShowing" @click="isChartShowing=!isChartShowing" class=" z-20 fixed top-0 right-0 m-4 lg:m-8" >
       <ChartIconClose />
     </button>  
-
   </div>
 </template>
 
@@ -59,7 +58,6 @@
   let scopedDataObj = {}
   function userSubmission(obj) {
     if(obj['data'].value.length > 3) emiT('notifyMsg', 'Processing large amount of data at once may cause your device to be unresponsive')
-
     if(obj['data'].value.toString() == scopedDataObj.toString()) {
       //skip fetch if same data is used
       // console.log('same data')
