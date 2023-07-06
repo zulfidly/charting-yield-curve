@@ -36,7 +36,7 @@
 </script>
 
 <template>
-    <div class=" sm:hidden w-full p-2 sm:p-3 border border-[--color-border] rounded-lg bg-[--color-background-soft]">
+    <div class=" sm:hidden lg:block w-full p-2 sm:p-3 border border-[--color-border] rounded-lg bg-[--color-background-soft]">
         <p class="text-center font-normal">Set charting range (in year)</p>
         <form class="flex gap-1 sm:gap-3">
             <section class="flex w-full border border-[--color-border] bg-[--color-background-mute] p-2 rounded-lg">
