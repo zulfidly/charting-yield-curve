@@ -22,6 +22,7 @@ app2.mount('#app')
 // by year = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value=2023'
 // by month = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value_month=202306'
 export async function fetchData(fu, endpoint) {
+    console.log('fetching data...');
     return await fetch(endpoint)
       .then((response) => response.text())
       .then((data) => { return funcLib[fu](data) })

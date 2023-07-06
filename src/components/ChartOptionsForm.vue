@@ -10,11 +10,9 @@
     const arrYear = ref([])     // in numbers
     const selectYrFrom = ref(endYear.toString())
     const selectYrTo = ref(endYear.toString())
-    const yearRange = ref([endYear.toString()])   
-     
-    for(let i = endYear; i>=startYear; i--) {
-        arrYear.value.push(i)
-    }
+    const yearRange = ref([endYear.toString()])       
+
+    for(let i = endYear; i>=startYear; i--) { arrYear.value.push(i) }
 
     const filteredOptionFrom = computed(()=> arrYear.value.filter((x, y, z)=> {
         return x.toString() <= selectYrTo.value
@@ -24,15 +22,13 @@
     }))
 
     function submitUserOptions(type) {
-        console.log(type);
         isFetching.value = true
         yearRange.value = []
         for(let i=Number(selectYrFrom.value); i<=Number(selectYrTo.value); i++) {
             yearRange.value.push(i.toString())
         }
-        emiT('userOptYear', {data: yearRange.value, btn: type })
+        emiT('userOptYear', {data: yearRange, btn: type })
     }
-
 </script>
 
 <template>

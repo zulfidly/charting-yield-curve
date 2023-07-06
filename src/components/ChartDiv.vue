@@ -1,12 +1,17 @@
 <template>
   <div>
-    <ChartForm @userOptYear="(x)=> userWantsToViewChart(x)" />
-    <div v-show="isChartShowing" @click="isChartShowing=!isChartShowing" class="fixed z-10 top-0 left-0 w-screen h-screen" id="curve_chart" ref="gcchart" ></div>
+    <ChartForm @userOptYear="(x)=> userSubmission(x)" />
+    <div v-show="isChartShowing" class="fixed z-10 top-0 left-0 w-screen h-screen" id="curve_chart" ref="gcchart" ></div>
+    <button v-if="isChartShowing" @click="isChartShowing=!isChartShowing" class=" z-20 fixed top-0 right-0 m-4 lg:m-8" >
+      <ChartIconClose />
+    </button>  
+
   </div>
 </template>
 
 <script setup>
   import ChartForm from './ChartOptionsForm.vue'
+  import ChartIconClose from './ChartIconClose.vue'
   import { fetchData } from '../main.js'
   import { ref } from 'vue'
   import { onMounted } from 'vue'
@@ -50,41 +55,49 @@
       displayChart()
     })
   }
-
   
-  function userWantsToViewChart(obj) {
-    if(obj['data'].length > 3) emiT('notifyMsg', 'Processing large amount of data at once may cause your device to be unresponsive')
+  let scopedDataObj = {}
+  function userSubmission(obj) {
+    if(obj['data'].value.length > 3) emiT('notifyMsg', 'Processing large amount of data at once may cause your device to be unresponsive')
 
-    isDataContinuityOK.value = false
-    const endurl = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value='
-    let promises = []
-
-    obj['data'].forEach(function(yr, ind) {
-      let endpoint = endurl + yr.toString()
-      let promis = new Promise((resolve, reject)=> {
-        resolve(fetchData('scrapeData', endpoint))
+    if(obj['data'].value.toString() == scopedDataObj.toString()) {
+      //skip fetch if same data is used
+      // console.log('same data')
+      isFetching.value = false
+      if(obj.btn == 'viewChart') {
+        buildChartingData(rawData.value)
+        displayChart()
+      }
+    }
+    else {
+      scopedDataObj = [...obj['data'].value]    // make a copy
+      isDataContinuityOK.value = false
+      const endurl = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value='
+      let promises = []
+      scopedDataObj.forEach(function(yr, ind) {
+        let endpoint = endurl + yr.toString()
+        let promis = new Promise((resolve, reject)=> {
+          resolve(fetchData('scrapeData', endpoint))
+        })
+        promises.push(promis)
       })
-      promises.push(promis)
-    })
-    Promise.all(promises)
-      .then((resp)=> {
-        isDataContinuityOK.value = true
-        isFetching.value = false
-        // let arr = resp.flat()
-        // rawData.value = arr
-        // console.log('all promises settled:', temp);
-        rawData.value = resp.flat()
-        console.log(rawData.value);
-        if(obj.btn == 'viewChart') {
-          buildChartingData(rawData.value)
-          displayChart()
-        }
+      Promise.all(promises)
+        .then((resp)=> {
+          isDataContinuityOK.value = true
+          isFetching.value = false
+          rawData.value = resp.flat()
+          console.log(rawData.value);
+          if(obj.btn == 'viewChart') {
+            buildChartingData(rawData.value)
+            displayChart()
+          }
+        })
+        .catch((err)=> {
+          isDataContinuityOK.value = false
+          emiT('notifyMsg', 'Inconsistent data continuity detected, \n or shorten the range (year). \n Try again. ')
+          console.error('data discontinuity:', err)
       })
-      .catch((err)=> {
-        isDataContinuityOK.value = false
-        emiT('notifyMsg', 'Inconsistent data continuity detected, \n or shorten the range (year). \n Try again. ')
-        console.error('data discontinuity:', err)
-    })
+    }
   }
 
   function displayChart() {
@@ -93,7 +106,7 @@
     google.charts.setOnLoadCallback(drawChart) 
   }
   function drawChart() {
-    console.log('drawing chart');
+    // console.log('drawing chart');
     setChartDimension()
     var data = google.visualization.arrayToDataTable(chartData.value);
     var options = {
@@ -147,7 +160,7 @@
     chart.draw(data, options);
   }
   function buildChartingData(arr) {
-    console.log('arr:', arr);
+    // console.log('arr:', arr);
     chartData.value = [['Month', '10yr−2yr', '10yr−3mth']]
     arr.forEach((obj, ind)=> {
       let TenyrTwoyr = (obj['10yr']-obj['2yr']).toFixed(3) * 1
