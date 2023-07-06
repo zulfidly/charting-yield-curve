@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ChartForm @userOptYear="(x)=> userSubmission(x)" />
+    <ChartForm @userOptYear="(x)=> userSubmission(x)" :disconnectBtn="isDataContinuityOK" />
     <div v-show="isChartShowing" class="fixed z-10 top-0 left-0 w-screen h-screen" id="curve_chart" ref="gcchart" ></div>
     <button v-if="isChartShowing" @click="isChartShowing=!isChartShowing" class=" z-20 fixed top-0 right-0 m-4 lg:m-8" >
       <ChartIconClose />
@@ -17,7 +17,7 @@
   import { inject } from 'vue'
   const emiT = defineEmits(['notifyMsg'])
   const isChartShowing = ref(false)
-  const isDataContinuityOK = ref(undefined)
+  const isDataContinuityOK = inject('isDataContinuityOK')
   const chartData = inject('chartData')
   const rawData = inject('rawData')
   const isFetching = inject('isFetching')
@@ -49,6 +49,7 @@
   onMounted(()=> { addListener_resize() })
   function addListener_resize() {
     window.addEventListener('resize', ()=> {
+      console.log('W:', window.innerWidth, 'H:', window.innerHeight);
       if(isChartShowing.value == false) return
       setChartDimension()
       displayChart()
@@ -57,32 +58,42 @@
   
   let scopedDataObj = {}
   function userSubmission(obj) {
+    isDataContinuityOK.value = true
     // if(obj['data'].value.length > 3) emiT('notifyMsg', 'Processing large amount of data at once may cause your device to be unresponsive')
     if(obj['data'].value.toString() == scopedDataObj.toString()) {   //skip fetch if same data is used
       isFetching.value = false
-      if(obj.btn == 'viewChart') {
+      if(obj.btn == 'viewChart') {    // use already fetched data
         buildChartingData(rawData.value)
         displayChart()
       }
     }
     else {
       scopedDataObj = [...obj['data'].value]    // make a copy
-      isDataContinuityOK.value = false
       const endurl = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value='
       let promises = []
       scopedDataObj.forEach(function(yr, ind) {
-        let endpoint = endurl + yr.toString()
-        let promis = new Promise((resolve, reject)=> {
-          resolve(fetchData('scrapeData', endpoint))
+          let endpoint = endurl + yr.toString()
+          let promis = new Promise((resolve, reject)=> {
+            let fetched = fetchData('scrapeData', endpoint)
+            resolve(fetched)
+          })
+
+          promis.then((x) => {
+            if(x.statusCode == 500) {
+              isDataContinuityOK.value = false
+              rawData.value = []
+              emiT('notifyMsg', 'Data fetching error occured, \n try shorten the range (year) \n and try again. ')
+            }
+          })
+          promises.push(promis)
         })
-        promises.push(promis)
-      })
-      Promise.all(promises)
+        console.log(promises);
+        Promise.all(promises)
         .then((resp)=> {
-          isDataContinuityOK.value = true
           isFetching.value = false
+          if(isDataContinuityOK == false) return
           rawData.value = resp.flat()
-          console.log(rawData.value);
+          // console.log(rawData.value);
           if(obj.btn == 'viewChart') {
             buildChartingData(rawData.value)
             displayChart()
@@ -92,7 +103,7 @@
           isDataContinuityOK.value = false
           emiT('notifyMsg', 'Inconsistent data continuity detected, \n try shorten the range (year) \n and try again. ')
           console.error('data discontinuity:', err)
-      })
+        })
     }
   }
 
@@ -164,7 +175,7 @@
       let ddmmyyyy = Intl.DateTimeFormat('en-GB').format(new Date(obj.date)) 
       if(!isNaN(TenyrTwoyr) && !isNaN(TenyrThreemth)) chartData.value.push([ddmmyyyy, TenyrTwoyr, TenyrThreemth])
     })
-    console.log('chartingData:', chartData.value);
+    // console.log('chartingData:', chartData.value);
   }
   function setChartDimension() { 
     dimension.innerChart.W = window.innerWidth * 0.75

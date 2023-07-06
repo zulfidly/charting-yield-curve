@@ -7,6 +7,8 @@ import { reactive } from 'vue'
 const chartData = ref([['Month', '10yr−2yr', '10yr−3mth']])
 const rawData = ref([])
 const isFetching = ref(false)
+const isDataContinuityOK = ref(true)
+
 const isNotify = reactive({
     msg: undefined,
     isShown: false,
@@ -17,18 +19,19 @@ app2.provide('chartData',    chartData)
 app2.provide('rawData',      rawData)
 app2.provide('isFetching',   isFetching)
 app2.provide('isNotify',     isNotify)
+app2.provide('isDataContinuityOK',     isDataContinuityOK)
 app2.mount('#app')
 
 // by year = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value=2023'
 // by month = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value_month=202306'
 export async function fetchData(fu, endpoint) {
-    console.log('fetching data...');
-    return await fetch(endpoint)
+    // console.log('fetching data...');
+    return await fetch(endpoint, {mode:'cors'})
       .then((response) => response.text())
       .then((data) => { return funcLib[fu](data) })
       .catch((err)=> {
-        console.log('fetchERROR:', err)
-        return { statusCode: 500, error: JSON.stringify({ error: err}) }
+        // console.log('fetchERROR:', err)
+        return { statusCode: 500, error: err }
       })
     //   .finally(()=> { 
     //       return {
@@ -73,7 +76,7 @@ export async function fetchData(fu, endpoint) {
         let balstr = string.toString()
         let temp = []
         let qtyOfRows = findQTYofRows(stringSlicer(string, '<tbody>', '</tbody>'))
-        console.log('qtyOfRows: ', qtyOfRows);
+        // console.log('qtyOfRows: ', qtyOfRows);
         for(let i=0; i< qtyOfRows; i++) {
             let obj = { 'rowData' : stringSlicer(balstr, '<tr', '</tr>') }      
             temp.push(obj)

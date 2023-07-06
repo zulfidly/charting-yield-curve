@@ -3,6 +3,7 @@
     import { ref } from 'vue';
     import { useVirtualList } from '@vueuse/core';
     const rawData = inject('rawData')
+    const isDataContinuityOK = inject('isDataContinuityOK')
     const iheight = ref(26)
     const tbodyref = ref(null)
     const { list, containerProps, wrapperProps } = useVirtualList(
@@ -38,7 +39,7 @@
                     <p class="table-cell">10yr-2yr</p>
                     <p class="table-cell">10yr-3mth</p>
                 </section>
-                <section v-for="(item, ind) in list" :style="'height:'+iheight+'px;'" :key="'row'+ind" class="table-row [&>*]:sm:px-10 [&>*]:even:bg-[var(--color-background-mute)]">
+                <section v-if="isDataContinuityOK" v-for="(item, ind) in list" :style="'height:'+iheight+'px;'" :key="'row'+ind" class="table-row [&>*]:sm:px-10 [&>*]:even:bg-[var(--color-background-mute)]">
                     <p class="table-cell">{{ Intl.DateTimeFormat('en-GB').format(new Date(item.data.date)) }}</p>
                     <p class="table-cell">{{ item.data['10yr'] }}</p>
                     <p class="table-cell">{{ item.data['2yr'] }}</p>
