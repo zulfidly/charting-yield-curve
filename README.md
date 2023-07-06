@@ -15,8 +15,8 @@
 - ```import { useVirtualList } from '@vueuse/core';```, to minimise number of list rendered in DOM to fit within viewport only
 
 ## install Tailwind CSS
--```npm install -D tailwindcss postcss autoprefixer```
--```npx tailwindcss init -p```
+- ```npm install -D tailwindcss postcss autoprefixer```
+- ```npx tailwindcss init -p```
 - see edits in tailwind.config.js
 - see Tailwind top-level codes in css file
 

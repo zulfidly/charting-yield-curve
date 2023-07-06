@@ -58,8 +58,6 @@
   
   let scopedDataObj = {}
   function userSubmission(obj) {
-    // isDataContinuityOK.value = true
-    // if(obj['data'].value.length > 3) emiT('notifyMsg', 'Processing large amount of data at once may cause your device to be unresponsive')
     if(obj['data'].value.toString() == scopedDataObj.toString() && isDataContinuityOK.value == true) {   //skip fetch if same data is used
       isFetching.value = false
       if(obj.btn == 'viewChart') {    // use already fetched data
