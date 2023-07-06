@@ -2,12 +2,12 @@
 
 ## Learning Objective
 - web scraping by fetch and regex method
-- large data presentation (minimising DOM attempts)
+- accuracy on large data presentation (minimising DOM attempts)
 - charting through Google Chart
 - use of ```defineProps({})``` & ```defineEmits([])```
 - use of app level provide i.e. ```create(App).provide('key', value)```
 
-## install Vue
+## install Vue 3
 ```npm init vue@latest```
 
 ## install VueUse library
@@ -21,5 +21,5 @@
 - see Tailwind top-level codes in css file
 
 ### Compile and Hot-Reload for Development
--```npm run dev```
+- ```npm run dev```
 
