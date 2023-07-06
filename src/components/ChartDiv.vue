@@ -58,9 +58,9 @@
   
   let scopedDataObj = {}
   function userSubmission(obj) {
-    isDataContinuityOK.value = true
+    // isDataContinuityOK.value = true
     // if(obj['data'].value.length > 3) emiT('notifyMsg', 'Processing large amount of data at once may cause your device to be unresponsive')
-    if(obj['data'].value.toString() == scopedDataObj.toString()) {   //skip fetch if same data is used
+    if(obj['data'].value.toString() == scopedDataObj.toString() && isDataContinuityOK.value == true) {   //skip fetch if same data is used
       isFetching.value = false
       if(obj.btn == 'viewChart') {    // use already fetched data
         buildChartingData(rawData.value)
@@ -82,8 +82,8 @@
             if(x.statusCode == 500) {
               isDataContinuityOK.value = false
               rawData.value = []
-              emiT('notifyMsg', 'Data fetching error occured, \n try shorten the range (year) \n and try again. ')
-            }
+              emiT('notifyMsg', 'Data fetching error occured, \n try shorten the range (year) \n or try again. ')
+            } else isDataContinuityOK.value = true
           })
           promises.push(promis)
         })
@@ -91,8 +91,8 @@
         Promise.all(promises)
         .then((resp)=> {
           isFetching.value = false
-          if(isDataContinuityOK == false) return
-          rawData.value = resp.flat()
+          if(isDataContinuityOK.value == false) return
+          if(isDataContinuityOK.value == true) rawData.value = resp.flat()
           // console.log(rawData.value);
           if(obj.btn == 'viewChart') {
             buildChartingData(rawData.value)
@@ -101,8 +101,8 @@
         })
         .catch((err)=> {
           isDataContinuityOK.value = false
-          emiT('notifyMsg', 'Inconsistent data continuity detected, \n try shorten the range (year) \n and try again. ')
-          console.error('data discontinuity:', err)
+          // emiT('notifyMsg', 'Inconsistent data continuity detected, \n try shorten the range (year) \n and try again. ')
+          // console.error('data discontinuity:', err)
         })
     }
   }
