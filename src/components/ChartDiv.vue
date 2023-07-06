@@ -52,14 +52,14 @@
   }
 
   
-  function userWantsToViewChart(arrYr) {
-    if(arrYr.length > 3) emiT('notifyMsg', 'Processing large amount of data at once may cause your device to be unresponsive')
+  function userWantsToViewChart(obj) {
+    if(obj['data'].length > 3) emiT('notifyMsg', 'Processing large amount of data at once may cause your device to be unresponsive')
 
     isDataContinuityOK.value = false
     const endurl = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value='
     let promises = []
 
-    arrYr.forEach(function(yr, ind) {
+    obj['data'].forEach(function(yr, ind) {
       let endpoint = endurl + yr.toString()
       let promis = new Promise((resolve, reject)=> {
         resolve(fetchData('scrapeData', endpoint))
@@ -70,11 +70,15 @@
       .then((resp)=> {
         isDataContinuityOK.value = true
         isFetching.value = false
-        let arr = resp.flat()
+        // let arr = resp.flat()
+        // rawData.value = arr
         // console.log('all promises settled:', temp);
-        rawData.value = arr
-        buildChartingData(arr)
-        displayChart()
+        rawData.value = resp.flat()
+        console.log(rawData.value);
+        if(obj.btn == 'viewChart') {
+          buildChartingData(rawData.value)
+          displayChart()
+        }
       })
       .catch((err)=> {
         isDataContinuityOK.value = false

@@ -5,22 +5,22 @@ import App from './App.vue'
 import { ref } from 'vue'
 import { reactive } from 'vue'
 const chartData = ref([['Month', '10yr−2yr', '10yr−3mth']])
-const rawData = ref(undefined)
+const rawData = ref([])
 const isFetching = ref(false)
 const isNotify = reactive({
     msg: undefined,
     isShown: false,
 });
+
 const app2 = createApp(App)
-app2.provide(/* key */ 'chartData', /* value */ chartData)
-app2.provide(/* key */ 'rawData', /* value */ rawData)
-app2.provide(/* key */ 'isFetching', /* value */ isFetching)
-app2.provide(/* key */ 'isNotify', /* value */ isNotify)
+app2.provide('chartData',    chartData)
+app2.provide('rawData',      rawData)
+app2.provide('isFetching',   isFetching)
+app2.provide('isNotify',     isNotify)
 app2.mount('#app')
 
-  // by year = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value=2023'
-  // by month = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value_month=202306'
-
+// by year = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value=2023'
+// by month = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value_month=202306'
 export async function fetchData(fu, endpoint) {
     return await fetch(endpoint)
       .then((response) => response.text())
