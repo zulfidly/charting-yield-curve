@@ -1,8 +1,6 @@
 <script setup>
     import { inject } from 'vue'
-    // import { onMounted } from 'vue';
     import { ref } from 'vue';
-    // import { fetchData } from '../main.js'
     import { useVirtualList } from '@vueuse/core';
     const rawData = inject('rawData')
     const iheight = ref(26)
@@ -14,12 +12,6 @@
         },
     )
 
-    // onMounted(()=> {
-    //     let yr = new Date().getFullYear().toString()
-    //     let url = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value='
-    //     fetchData('scrapeData', url+yr)
-    //     .then((resp)=> rawData.value = resp)
-    // })
     const changeindicator = ref('init')
     function viewtbodyref() {
         let getLastRenderedDate = tbodyref.value.lastElementChild.firstElementChild.textContent

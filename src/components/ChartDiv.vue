@@ -57,10 +57,8 @@
   
   let scopedDataObj = {}
   function userSubmission(obj) {
-    if(obj['data'].value.length > 3) emiT('notifyMsg', 'Processing large amount of data at once may cause your device to be unresponsive')
-    if(obj['data'].value.toString() == scopedDataObj.toString()) {
-      //skip fetch if same data is used
-      // console.log('same data')
+    // if(obj['data'].value.length > 3) emiT('notifyMsg', 'Processing large amount of data at once may cause your device to be unresponsive')
+    if(obj['data'].value.toString() == scopedDataObj.toString()) {   //skip fetch if same data is used
       isFetching.value = false
       if(obj.btn == 'viewChart') {
         buildChartingData(rawData.value)
@@ -92,7 +90,7 @@
         })
         .catch((err)=> {
           isDataContinuityOK.value = false
-          emiT('notifyMsg', 'Inconsistent data continuity detected, \n or shorten the range (year). \n Try again. ')
+          emiT('notifyMsg', 'Inconsistent data continuity detected, \n try shorten the range (year) \n and try again. ')
           console.error('data discontinuity:', err)
       })
     }
