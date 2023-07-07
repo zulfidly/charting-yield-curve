@@ -10,7 +10,7 @@
   function notifierMngr(msg) {
     isNotify.msg = msg
     isNotify.isShown = true
-    setTimeout(()=> isNotify.isShown = false, 3500)
+    setTimeout(()=> isNotify.isShown = false, 4500)
   }
 </script>
 
@@ -20,7 +20,7 @@
   <header class="font-semibold flex mb-2 gap-4 item-center">
     <IconGitHub />
     <a class="font-semibold" href='https://home.treasury.gov/' target="_blank" aria-label="visit U.S Treasury website">
-      U.S Treasury Yield Curve Comparison <br />
+      U.S Treasury Yield Curve Analysis <br /> 
       <span>(a coding practice)</span>
     </a>    
   </header>

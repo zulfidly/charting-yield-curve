@@ -1,8 +1,8 @@
 <template>
   <div>
-    <ChartForm @userOptYear="(x)=> userSubmission(x)" :disconnectBtn="isDataContinuityOK" />
-    <div v-show="isChartShowing" class="fixed z-10 top-0 left-0 w-screen h-screen" id="curve_chart" ref="gcchart" ></div>
-    <button v-if="isChartShowing" @click="isChartShowing=!isChartShowing" class=" z-20 fixed top-0 right-0 m-4 lg:m-8" >
+    <ChartForm @userOptYear="(x)=> userSubmission(x)" :disconnectBtn="appStates.isDataContinuityOK" />
+    <div v-show="appStates.isChartShowing" class="fixed z-10 top-0 left-0 w-screen h-screen" id="curve_chart" ref="gcchart" ></div>
+    <button v-if="appStates.isChartShowing" @click="appStates.isChartShowing=!appStates.isChartShowing" class=" z-20 fixed top-0 right-0 m-4 lg:m-8" >
       <ChartIconClose />
     </button>  
   </div>
@@ -16,11 +16,7 @@
   import { onMounted } from 'vue'
   import { inject } from 'vue'
   const emiT = defineEmits(['notifyMsg'])
-  const isChartShowing = ref(false)
-  const isDataContinuityOK = inject('isDataContinuityOK')
-  const chartData = inject('chartData')
-  const rawData = inject('rawData')
-  const isFetching = inject('isFetching')
+  const appStates = inject('appStates')
   const gcchart = ref(null)
   var r = document.querySelector(':root')
   var rs = getComputedStyle(r)
@@ -50,7 +46,7 @@
   function addListener_resize() {
     window.addEventListener('resize', ()=> {
       console.log('W:', window.innerWidth, 'H:', window.innerHeight);
-      if(isChartShowing.value == false) return
+      if(appStates.isChartShowing == false) return
       setChartDimension()
       displayChart()
     })
@@ -58,10 +54,10 @@
   
   let scopedDataObj = {}
   function userSubmission(obj) {
-    if(obj['data'].value.toString() == scopedDataObj.toString() && isDataContinuityOK.value == true) {   //skip fetch if same data is used
-      isFetching.value = false
+    if(obj['data'].value.toString() == scopedDataObj.toString() && (appStates.isDataContinuityOK == true)) {   //skip fetch if same data is used
+      appStates.isFetching = false
       if(obj.btn == 'viewChart') {    // use already fetched data
-        buildChartingData(rawData.value)
+        buildChartingData(appStates.rawData)
         displayChart()
       }
     }
@@ -75,30 +71,31 @@
             let fetched = fetchData('scrapeData', endpoint)
             resolve(fetched)
           })
-
-          promis.then((x) => {
-            if(x.statusCode == 500) {
-              isDataContinuityOK.value = false
-              rawData.value = []
-              emiT('notifyMsg', 'Data fetching error occured, \n try shorten the range (year) \n or try again. ')
-            } else isDataContinuityOK.value = true
-          })
           promises.push(promis)
         })
         console.log(promises);
         Promise.all(promises)
         .then((resp)=> {
-          isFetching.value = false
-          if(isDataContinuityOK.value == false) return
-          if(isDataContinuityOK.value == true) rawData.value = resp.flat()
-          // console.log(rawData.value);
+          appStates.isFetching = false
+          appStates.isDataContinuityOK = true
+          resp.forEach((obj, ind)=> {
+            if(obj.statusCode == 500) {
+              appStates.isDataContinuityOK = false
+              emiT('notifyMsg', 'The server rejected some of the data requested, \n try shorten the range (year) \n or try again. ')
+            }
+          })
+          if(appStates.isDataContinuityOK == true) appStates.rawData = resp.flat()
+          else {
+            appStates.rawData = []
+            return
+          }
           if(obj.btn == 'viewChart') {
-            buildChartingData(rawData.value)
+            buildChartingData(appStates.rawData)
             displayChart()
           }
         })
         .catch((err)=> {
-          isDataContinuityOK.value = false
+          appStates.isDataContinuityOK = false
           // emiT('notifyMsg', 'Inconsistent data continuity detected, \n try shorten the range (year) \n and try again. ')
           // console.error('data discontinuity:', err)
         })
@@ -106,14 +103,13 @@
   }
 
   function displayChart() {
-    isChartShowing.value = true
+    appStates.isChartShowing = true
     google.charts.load('current', { 'packages': ['corechart'] });            
     google.charts.setOnLoadCallback(drawChart) 
   }
   function drawChart() {
-    // console.log('drawing chart');
     setChartDimension()
-    var data = google.visualization.arrayToDataTable(chartData.value);
+    var data = google.visualization.arrayToDataTable(appStates.chartData);
     var options = {
       title: "U.S Treasury Yield Curve Difference",
       titlePosition: "out",
@@ -160,18 +156,18 @@
         },
       },
     };
-
-    var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+    var chart = new google.visualization.LineChart(gcchart.value);
     chart.draw(data, options);
   }
+
   function buildChartingData(arr) {
     // console.log('arr:', arr);
-    chartData.value = [['Month', '10yr−2yr', '10yr−3mth']]
+    appStates.chartData = [['Month', '10yr−2yr', '10yr−3mth']]
     arr.forEach((obj, ind)=> {
       let TenyrTwoyr = (obj['10yr']-obj['2yr']).toFixed(3) * 1
       let TenyrThreemth = (obj['10yr']-obj['3mth']).toFixed(3) * 1
       let ddmmyyyy = Intl.DateTimeFormat('en-GB').format(new Date(obj.date)) 
-      if(!isNaN(TenyrTwoyr) && !isNaN(TenyrThreemth)) chartData.value.push([ddmmyyyy, TenyrTwoyr, TenyrThreemth])
+      if(!isNaN(TenyrTwoyr) && !isNaN(TenyrThreemth)) appStates.chartData.push([ddmmyyyy, TenyrTwoyr, TenyrThreemth])
     })
     // console.log('chartingData:', chartData.value);
   }

@@ -6,6 +6,7 @@
 - charting through Google Chart
 - use of ```defineProps({})``` & ```defineEmits([])```
 - use of app level provide i.e. ```create(App).provide('key', value)```
+- realisation that: ```if(Array1 == Array2)``` is always false
 
 ## install Vue 3
 ```npm init vue@latest```
