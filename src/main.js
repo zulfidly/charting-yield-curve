@@ -1,5 +1,4 @@
 import './assets/base.css'
-
 import { createApp } from 'vue'
 import App from './App.vue'
 import { reactive } from 'vue'
@@ -11,28 +10,36 @@ const appStates = reactive({
     isDataContinuityOK: true,
     isChartShowing: false,    
 })
-
+const userDevice = reactive({       // to be initialised in App.vue
+    scrW: undefined,
+    scrH: undefined,
+    ratioWH: undefined,
+    orientation: undefined,
+    formFactor: undefined,
+    isMobileLandscape: undefined
+})
 const isNotify = reactive({
     msg: undefined,
     isShown: false,
 });
 
 const app2 = createApp(App)
-app2.provide('isNotify',     isNotify)
-app2.provide('appStates',    appStates)
+app2.provide('isNotify',    isNotify)
+app2.provide('appStates',   appStates)
+app2.provide('userDevice',  userDevice)
 app2.mount('#app')
 
 // by year = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value=2023'
 // by month = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value_month=202306'
-export async function fetchData(fu, endpoint) {
-    return await fetch(endpoint, {mode:'cors'})
-      .then((response) => response.text())
-      .then((data) => { return funcLib[fu](data) })
-      .catch((err)=> {
-        // console.log('fetchERROR:', err)
-        return { statusCode: 500, error: err }
-      })
+    export async function fetchData(fu, endpoint) {
+        return await fetch(endpoint, {mode:'cors'})
+        .then((response) => response.text())
+        .then((data) => { return funcLib[fu](data) })
+        .catch((err)=> {
+            return { statusCode: 500, error: err }
+        })
     }  
+
     const funcLib = {
         scrapeData : function(data) {
             return structurePerDayObj(

@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="mb-2 sm:mb-0 lg:mb-4">
     <ChartForm @userOptYear="(x)=> userSubmission(x)" :disconnectBtn="appStates.isDataContinuityOK" />
-    <div v-show="appStates.isChartShowing" class="fixed z-10 top-0 left-0 w-screen h-screen" id="curve_chart" ref="gcchart" ></div>
-    <button v-if="appStates.isChartShowing" @click="appStates.isChartShowing=!appStates.isChartShowing" class=" z-20 fixed top-0 right-0 m-4 lg:m-8" >
+    <div v-if="appStates.isChartShowing" class="fixed z-10 top-0 left-0 w-screen h-screen transition-all duration-300" id="curve_chart" ref="gcchart" ></div>
+    <button v-if="appStates.isChartShowing" @click="appStates.isChartShowing=false" class=" z-20 fixed top-0 right-0 m-4 lg:m-8" >
       <ChartIconClose />
     </button>  
   </div>
@@ -13,22 +13,28 @@
   import ChartIconClose from './ChartIconClose.vue'
   import { fetchData } from '../main.js'
   import { ref } from 'vue'
-  import { onMounted } from 'vue'
+  import { watch } from 'vue'
   import { inject } from 'vue'
   const emiT = defineEmits(['notifyMsg'])
   const appStates = inject('appStates')
+  const userDevice = inject('userDevice')
   const gcchart = ref(null)
-  var r = document.querySelector(':root')
-  var rs = getComputedStyle(r)
-  let txtClr = rs.getPropertyValue("--chart-text").trim()
-  let color = {
-    mainTitle: txtClr,
-    legendTextColor: txtClr,
-    xAxisLabels: txtClr,
-    yAxisLabels: txtClr,
-    chartAreaBG: rs.getPropertyValue("--chartarea-bg").trim(),
-    chartBG: rs.getPropertyValue("--chart-bg").trim(),
+
+  let color = {}
+  function getChartColor() {
+    var r = document.querySelector(':root')
+    var rs = getComputedStyle(r)
+    let txtClr = rs.getPropertyValue("--chart-text").trim()
+    color = {
+      mainTitle: txtClr,
+      legendTextColor: txtClr,
+      xAxisLabels: txtClr,
+      yAxisLabels: txtClr,
+      chartAreaBG: rs.getPropertyValue("--chartarea-bg").trim(),
+      chartBG: rs.getPropertyValue("--chart-bg").trim(),
+    }
   }
+
   let dimension = {
     innerChart: {
       W: undefined,
@@ -41,16 +47,22 @@
       H: undefined,
     }
   }
-
-  onMounted(()=> { addListener_resize() })
-  function addListener_resize() {
-    window.addEventListener('resize', ()=> {
-      console.log('W:', window.innerWidth, 'H:', window.innerHeight);
+  window.matchMedia("(prefers-color-scheme:dark)").addEventListener("change", () => {
+    console.log('color mode changed');
+    displayChart()
+    // if(userDevice.isChartShowing) displayChart()
+  })
+  watch(      // redraw chart if device is rotated, to fit the screen's W & H
+    userDevice,
+    ()=> {
       if(appStates.isChartShowing == false) return
-      setChartDimension()
-      displayChart()
-    })
-  }
+      else {
+        // console.log('redrawing chart');
+        setChartDimension()
+        displayChart()
+      }
+    }
+  )
   
   let scopedDataObj = {}
   function userSubmission(obj) {
@@ -81,7 +93,7 @@
           resp.forEach((obj, ind)=> {
             if(obj.statusCode == 500) {
               appStates.isDataContinuityOK = false
-              emiT('notifyMsg', 'The server rejected some of the data requested, \n try shorten the range (year) \n or try again. ')
+              emiT('notifyMsg', 'The server rejected request for data, \n try shorten the range (year) \n or try again. ')
             }
           })
           if(appStates.isDataContinuityOK == true) appStates.rawData = resp.flat()
@@ -96,8 +108,6 @@
         })
         .catch((err)=> {
           appStates.isDataContinuityOK = false
-          // emiT('notifyMsg', 'Inconsistent data continuity detected, \n try shorten the range (year) \n and try again. ')
-          // console.error('data discontinuity:', err)
         })
     }
   }
@@ -108,6 +118,7 @@
     google.charts.setOnLoadCallback(drawChart) 
   }
   function drawChart() {
+    getChartColor()
     setChartDimension()
     var data = google.visualization.arrayToDataTable(appStates.chartData);
     var options = {
