@@ -48,9 +48,8 @@
     }
   }
   window.matchMedia("(prefers-color-scheme:dark)").addEventListener("change", () => {
-    console.log('color mode changed');
-    displayChart()
-    // if(userDevice.isChartShowing) displayChart()
+    // console.log('color mode changed');
+    if(userDevice.isChartShowing) displayChart()
   })
   watch(      // redraw chart if device is rotated, to fit the screen's W & H
     userDevice,
@@ -85,7 +84,7 @@
           })
           promises.push(promis)
         })
-        console.log(promises);
+        // console.log(promises);
         Promise.all(promises)
         .then((resp)=> {
           appStates.isFetching = false
@@ -96,13 +95,17 @@
               emiT('notifyMsg', 'The server rejected request for data, \n try shorten the range (year) \n or try again. ')
             }
           })
-          if(appStates.isDataContinuityOK == true) appStates.rawData = resp.flat()
+          if(appStates.isDataContinuityOK == true) {
+            appStates.rawData = resp.flat()
+            buildChartingData(appStates.rawData)
+            // let sample = JSON.stringify(resp.flat())
+            // console.log('mySample:', sample.length,  sample);
+          }
           else {
             appStates.rawData = []
             return
           }
           if(obj.btn == 'viewChart') {
-            buildChartingData(appStates.rawData)
             displayChart()
           }
         })
@@ -178,9 +181,14 @@
       let TenyrTwoyr = (obj['10yr']-obj['2yr']).toFixed(3) * 1
       let TenyrThreemth = (obj['10yr']-obj['3mth']).toFixed(3) * 1
       let ddmmyyyy = Intl.DateTimeFormat('en-GB').format(new Date(obj.date)) 
-      if(!isNaN(TenyrTwoyr) && !isNaN(TenyrThreemth)) appStates.chartData.push([ddmmyyyy, TenyrTwoyr, TenyrThreemth])
+
+      if(typeof TenyrTwoyr === 'number' && typeof TenyrThreemth === 'number') {
+        if(isNaN(TenyrTwoyr) || isNaN(TenyrThreemth)) return
+        else appStates.chartData.push([ddmmyyyy, TenyrTwoyr, TenyrThreemth])
+      }
+      else return
     })
-    // console.log('chartingData:', chartData.value);
+    // console.log('chartingData:', appStates.chartData);
   }
   function setChartDimension() { 
     dimension.innerChart.W = window.innerWidth * 0.75

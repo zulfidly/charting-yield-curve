@@ -2,7 +2,6 @@
 <script setup>
     import { onMounted } from 'vue'
     import { inject } from 'vue'
-    import { ref } from 'vue'
     import { computed } from 'vue'
     const userDevice = inject('userDevice')
 
@@ -39,14 +38,14 @@
     })
 
     window.addEventListener('resize', ()=> {
-        console.log('W:', window.innerWidth, 'H:', window.innerHeight);
+        // console.log('W:', window.innerWidth, 'H:', window.innerHeight);
         userDevice.scrW = window.innerWidth
         userDevice.scrH = window.innerHeight
         userDevice.ratioWH = (window.screen.width / window.screen.height).toFixed(2)
         userDevice.orientation = window.screen.orientation.type
         userDevice.formFactor = formF.value
         userDevice.isMobileLandscape = isMobLscape.value        
-        console.log(isMobLscape.value); 
+        // console.log(isMobLscape.value); 
     })
 
     onMounted(()=> {
