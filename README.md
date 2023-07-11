@@ -7,6 +7,7 @@
 - use of ```defineProps({})``` & ```defineEmits([])```
 - use of app level provide as a global state single source of truth i.e. ```create(App).provide('key', value)```
 - realisation of: ```if(Array1 == Array2)``` is always false
+- realisation of: ```typeof NaN``` is 'number'
 
 ## install Vue 3
 ```npm init vue@latest```
