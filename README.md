@@ -1,4 +1,11 @@
-# [Demo at Netlify](https://ust-yield-chart-fidly.netlify.app/)
+# US Treasury yield difference chartings
+- to spot curve inversion points
+
+## Netlify demo [version 1](https://ust-yield-chart-fidly.netlify.app/)
+
+## to see the enhanced version 2 :
+- see [version 2 demo](https://yield-diff-at-fidly.netlify.app/)
+- see [version 2 repo]()
 
 ## Learning Objective
 - web scraping by fetch and regex method

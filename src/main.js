@@ -49,28 +49,28 @@ app2.mount('#app')
     }
     
     function stringSlicer(string, startMarker, endMarker) {
-    if(typeof string == 'string') { 
-        let str = string.toString()
-        let start = string.indexOf(startMarker)       // remoce whitespaces at both start and end of string
-        let end = string.indexOf(endMarker) + endMarker.length
-        str = string.slice(start, end)
-        str = str.replace(/\s/ig, '')  // remove all whitespace in between
-        str = str.trim()
-        return str
-    } 
-    else if(string instanceof Array) {
-        console.log('Not a string, but an Array:', string);
-        return 'arraY'
-    }
-    else if( string instanceof Object) {
-        console.log('Not a string, but an Object');
-        return 'objecT'
-    }
+        if(typeof string == 'string') { 
+            let str = string.toString()
+            let start = string.indexOf(startMarker)       // remoce whitespaces at both start and end of string
+            let end = string.indexOf(endMarker) + endMarker.length
+            str = string.slice(start, end)
+            str = str.replace(/\s/ig, '')  // remove all whitespace in between
+            str = str.trim()
+            return str
+        } 
+        else if(string instanceof Array) {
+            console.log('Not a string, but an Array:', string);
+            return 'arraY'
+        }
+        else if( string instanceof Object) {
+            console.log('Not a string, but an Object');
+            return 'objecT'
+        }
     }
 
     function findQTYofRows(str) {
-    let qty = str.match(/<\/tr>/ig)
-    return qty.length
+        let qty = str.match(/<\/tr>/ig)
+        return qty.length
     }
 
     function getRowsFromTable(string) {
