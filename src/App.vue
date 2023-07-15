@@ -22,7 +22,7 @@
   <div v-show="!userDevice.isMobileLandscape" class="px-4 pb-1 gap-4 flex justify-start items-center">
     <IconGitHub />
       <a class="font-semibold" href='https://home.treasury.gov/' target="_blank" aria-label="visit U.S Treasury website">
-        U.S Treasury Yield Curve Analysis <br /> 
+        [v1] U.S Treasury Yield Curve Analysis <br /> 
         <cite class="font-thin">
           this is a coding practice
         </cite>
