@@ -2,6 +2,7 @@
 - to spot curve inversion points
 
 ## Netlify demo [version 1](https://ust-yield-chart-fidly.netlify.app/)
+- prone to fetch failure due to CORS violations, especially when many http requests done (i.e: year range too wide)
 
 ## to see the enhanced version 2 :
 - see [version 2 demo](https://yield-diff-at-fidly.netlify.app/)
