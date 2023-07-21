@@ -6,7 +6,7 @@
 
 ## to see the enhanced version 2 :
 - see [version 2 demo](https://yield-diff-at-fidly.netlify.app/)
-- see [version 2 repo]()
+- see [version 2 repo](https://github.com/zulfidly/charting-yield-curve-v2)
 
 ## Learning Objective
 - web scraping by fetch and regex method

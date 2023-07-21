@@ -92,23 +92,24 @@ app2.mount('#app')
         arr.forEach((entry, ind)=> {
             let dayObj = {
                 'date': getCellData('time', entry.rowData),
-                '1mth': getCellData('1month', entry.rowData),
-                '2mth': getCellData('2month', entry.rowData),
+                // '1mth': getCellData('1month', entry.rowData),
+                // '2mth': getCellData('2month', entry.rowData),
                 '3mth': getCellData('3month', entry.rowData),
-                '4mth': getCellData('4month', entry.rowData),
-                '6mth': getCellData('6month', entry.rowData),
-                '1yr': getCellData('1year', entry.rowData),
+                // '4mth': getCellData('4month', entry.rowData),
+                // '6mth': getCellData('6month', entry.rowData),
+                // '1yr': getCellData('1year', entry.rowData),
                 '2yr': getCellData('2year', entry.rowData),
-                '3yr': getCellData('3year', entry.rowData),
-                '5yr': getCellData('5year', entry.rowData),
-                '7yr': getCellData('7year', entry.rowData),
+                // '3yr': getCellData('3year', entry.rowData),
+                // '5yr': getCellData('5year', entry.rowData),
+                // '7yr': getCellData('7year', entry.rowData),
                 '10yr': getCellData('10year', entry.rowData),
-                '20yr': getCellData('20year', entry.rowData),
-                '30yr': getCellData('30year', entry.rowData),
+                // '20yr': getCellData('20year', entry.rowData),
+                // '30yr': getCellData('30year', entry.rowData),
             }
         tempArr.push(dayObj)
         })  // forEach loop
-        // console.log(tempArr);
+        console.log(tempArr);
+        console.log(JSON.stringify(tempArr))
         // rawData.value = tempArr 
         // console.log(rawData.value);
         return tempArr
