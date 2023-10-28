@@ -8,7 +8,10 @@
     const iheight = ref(26)
     const vListRef = ref(null)
 
-    const computedList = computed(()=> {return appStates.rawData})
+    const computedList = computed(()=> { 
+        const temp = [...appStates.rawData]
+        return temp.reverse() 
+    })
     const { list, containerProps, wrapperProps } = useVirtualList(
         computedList,
         {
@@ -23,7 +26,6 @@
         changeindicator.value = '[DOM list: ' + getNumberOfRenderedList + '] | ' + getLastRenderedDate
     }
     const ctnrPropsHeight = computed(()=> {
-        // if(userDevice.isMobileLandscape) return `height:350px;`
         if(userDevice.isMobileLandscape) return `height:${userDevice.scrH-36}px;`
         else return `height:510px;`
     })

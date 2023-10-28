@@ -6,7 +6,6 @@ import { reactive } from 'vue'
 const appStates = reactive({    
     chartData: [['Month', '10yr−2yr', '10yr−3mth']],
     rawData: [],
-    
     isFetching: false,
     isDataContinuityOK: true,
     isChartShowing: false,    
@@ -107,13 +106,9 @@ app2.mount('#app')
                 // '20yr': getCellData('20year', entry.rowData),
                 // '30yr': getCellData('30year', entry.rowData),
             }
-        tempArr.push(dayObj)
-        })  // forEach loop
-        // console.log(tempArr);
-        // console.log(JSON.stringify(tempArr))
-        // rawData.value = tempArr 
-        // console.log(rawData.value);
-        tempArr = tempArr.reverse()
+            tempArr.push(dayObj)
+        }) 
+        // tempArr = tempArr.reverse()
         return tempArr
     } 
 
