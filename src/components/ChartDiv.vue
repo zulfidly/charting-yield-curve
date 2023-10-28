@@ -19,7 +19,7 @@
   const appStates = inject('appStates')
   const userDevice = inject('userDevice')
   const gcchart = ref(null)
-
+  const chartType = ref(undefined)
   let color = {}
   function getChartColor() {
     var r = document.querySelector(':root')
@@ -48,7 +48,6 @@
     }
   }
   window.matchMedia("(prefers-color-scheme:dark)").addEventListener("change", () => {
-    // console.log('color mode changed');
     if(userDevice.isChartShowing) displayChart()
   })
   watch(      // redraw chart if device is rotated, to fit the screen's W & H
@@ -56,7 +55,6 @@
     ()=> {
       if(appStates.isChartShowing == false) return
       else {
-        // console.log('redrawing chart');
         setChartDimension()
         displayChart()
       }
@@ -67,10 +65,9 @@
   function userSubmission(obj) {
     if(obj['data'].value.toString() == scopedDataObj.toString() && (appStates.isDataContinuityOK == true)) {   //skip fetch if same data is used
       appStates.isFetching = false
-      if(obj.btn == 'viewChart') {    // use already fetched data
-        buildChartingData(appStates.rawData)
-        displayChart()
-      }
+      chartType.value = obj.btn
+      buildChartingData(appStates.rawData, obj.btn)
+      displayChart()
     }
     else {
       scopedDataObj = [...obj['data'].value]    // make a copy
@@ -84,7 +81,6 @@
           })
           promises.push(promis)
         })
-        // console.log(promises);
         Promise.all(promises)
         .then((resp)=> {
           appStates.isFetching = false
@@ -97,16 +93,14 @@
           })
           if(appStates.isDataContinuityOK == true) {
             appStates.rawData = resp.flat()
-            buildChartingData(appStates.rawData)
-            // let sample = JSON.stringify(resp.flat())
-            // console.log('mySample:', sample.length,  sample);
+            buildChartingData(appStates.rawData, obj.btn)
           }
           else {
             appStates.rawData = []
             return
           }
-          if(obj.btn == 'viewChart') {
-            displayChart()
+          if(obj.btn === 'viewDifferentialChart' || obj.btn === 'viewStandardChart') {
+              displayChart()
           }
         })
         .catch((err)=> {
@@ -125,7 +119,9 @@
     setChartDimension()
     var data = google.visualization.arrayToDataTable(appStates.chartData);
     var options = {
-      title: "U.S Treasury Yield Curve Difference",
+      title: chartType.value === 'viewDifferentialChart' ? 
+      'U.S Treasury Yield Curve Difference' :
+      'U.S Treasury Yield Standard Charts',
       titlePosition: "out",
       titleTextStyle: {
           fontSize: 16,
@@ -174,21 +170,35 @@
     chart.draw(data, options);
   }
 
-  function buildChartingData(arr) {
-    // console.log('arr:', arr);
-    appStates.chartData = [['Month', '10yr−2yr', '10yr−3mth']]
-    arr.forEach((obj, ind)=> {
-      let TenyrTwoyr = (obj['10yr']-obj['2yr']).toFixed(3) * 1
-      let TenyrThreemth = (obj['10yr']-obj['3mth']).toFixed(3) * 1
-      let ddmmyyyy = Intl.DateTimeFormat('en-GB').format(new Date(obj.date)) 
-
-      if(typeof TenyrTwoyr === 'number' && typeof TenyrThreemth === 'number') {
-        if(isNaN(TenyrTwoyr) || isNaN(TenyrThreemth)) return
-        else appStates.chartData.push([ddmmyyyy, TenyrTwoyr, TenyrThreemth])
-      }
-      else return
-    })
-    // console.log('chartingData:', appStates.chartData);
+  function buildChartingData(arr, btn) {
+    if(btn === 'viewDifferentialChart') {
+      appStates.chartData = [['Month', '10yr−2yr', '10yr−3mth']]
+      arr.forEach((obj, ind)=> {
+        let TenyrTwoyr = (obj['10yr']-obj['2yr']).toFixed(3) * 1
+        let TenyrThreemth = (obj['10yr']-obj['3mth']).toFixed(3) * 1
+        let ddmmyyyy = Intl.DateTimeFormat('en-GB').format(new Date(obj.date)) 
+        if(typeof TenyrTwoyr === 'number' && typeof TenyrThreemth === 'number') {
+          if(isNaN(TenyrTwoyr) || isNaN(TenyrThreemth)) return
+          else appStates.chartData.push([ddmmyyyy, TenyrTwoyr, TenyrThreemth])
+        }
+        else return
+      })
+    }
+    else if(btn === 'viewStandardChart') {
+      appStates.chartData = []
+      arr.forEach((obj, ind)=> {
+        let threeMth = Number(obj['3mth']).toFixed(3) * 1
+        let twoYr = Number(obj['2yr']).toFixed(3) * 1
+        let tenYr = Number(obj['10yr']).toFixed(3) * 1
+        let ddmmyyyy = Intl.DateTimeFormat('en-GB').format(new Date(obj.date)) 
+        if(typeof threeMth === 'number' && typeof twoYr === 'number' && typeof tenYr === 'number') {
+          if(isNaN(threeMth) || isNaN(twoYr) || isNaN(tenYr)) return
+          else appStates.chartData.push([ddmmyyyy, threeMth, twoYr, tenYr])
+        }
+        else return
+      })
+      appStates.chartData.unshift(['Month', '3 month', '2 Year', '10 Year'])
+    }
   }
   function setChartDimension() { 
     dimension.innerChart.W = window.innerWidth * 0.75
